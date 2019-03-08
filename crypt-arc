@@ -1,0 +1,123 @@
+#!/bin/bash
+# Variables cleared
+backup_name=""
+backup_source=""
+backup_destination=""
+gpg_name=""
+gpg_password=""
+gpg_file=""
+backup_date=""
+
+# Usage
+print_usage() {
+    printf "Usage: crypt-arc [option] [argument]
+    -n    Name of the encrypted file (will have \".tar.gz.gpg\" appended to it)
+    -s    The source folder/file to back up and encrypt
+    -d    Destination location of the compressed, encrypted file
+    -N    User name of the GPG key being used
+    -P    GPG key passphrase
+    -F    GPG key passphrase file - used instead of -p and useful for cron automation etc.
+    -D    Affix date stamp after the backup name (YYYY-MM-DD) to the output filename
+    -h    Prints these instructions
+"
+}
+
+# Flags
+while getopts 'n:s:d:N:P:F:B:Dh' flag; do
+    case "${flag}" in
+        n) backup_name="${OPTARG}" ;;
+        s) backup_source="${OPTARG}" ;;
+        d) backup_destination="${OPTARG}" ;;
+        N) gpg_name="${OPTARG}" ;;
+        P) gpg_password="${OPTARG}" ;;
+        F) gpg_file="${OPTARG}" ;;
+        D) backup_date="$(date +%Y-%m-%d)" ;;
+        h) print_usage
+           exit 0 ;;
+        *) print_usage
+           exit 1 ;;
+    esac
+done
+
+# Check tar and gpg are available
+if  [[ -z $(command -v tar) ]]; then
+    echo "Package ""tar"" not found. Please ensure it is installed on this system"; echo ""
+    exit 1
+elif [[ -z $(command -v gpg) ]]; then
+    echo "Package ""gpg"" not found. Please ensure it is installed on this system"; echo ""
+    exit 1
+else
+    :
+fi
+
+# Check all required variables have been specified
+if [[ -z "$backup_name" && -z "$backup_source" && -z "$backup_destination" && -z "$gpg_name" ]]; then
+    echo "One or more required values have not been set."; echo "A backup name, source, destination and GPG key name must be specified."; echo ""
+    exit 1
+fi
+
+# Check whether a password file or just a passphrase has been passed, and that both flags have not been used accidentally
+if [[ -n $gpg_file && -n $gpg_password ]]; then
+    echo "Either a passphrase or a passphrase file must be specified, not both."; echo ""
+    exit 1
+elif [[ -n $gpg_file ]]; then
+    gpg_pass="--passphrase-file=""$gpg_file"
+elif [[ -n $gpg_password ]]; then
+    gpg_pass="--passphrase=""$gpg_password"
+else
+    echo "Either a passphrase or a passphrase file must be specified"; echo ""
+    exit 1
+fi
+
+# Check is date flag is specified
+if [[ -n $backup_date ]]; then
+    output_name="$backup_name"-"$backup_date".tar.gz.gpg
+else
+    output_name="$backup_name".tar.gz.gpg
+fi
+
+# Check if the backup source exists and is not being accidentally overwritten (prompt to overwrite)
+if [[ -d "$backup_destination""/""$output_name" ]] || [[ -f "$backup_destination""/""$output_name" ]]; then
+    echo "$backup_destination""/""$output_name"" already exists... ""Overwrite? (y/N)"
+    read -n1 -s -r
+    clear
+    case "$REPLY" in
+        y)
+            : ;;
+        n|*)
+            exit 1 ;;
+    esac
+fi
+
+# The actual backup portion of this script
+if [[ $(gpg --version | grep gpg | awk -F ' ' '{print $3}') < 2.1 ]]; then
+    if [[ -n "$gpg_file" ]]; then
+        passphrasefileflag="--passphrase-file "
+    else
+        passphrasefileflag="--passphrase "
+    fi
+    cd "$backup_source" || exit 1
+    mkdir -p "$backup_destination"
+    tar \
+        zc "$backup_name" | \
+    gpg \
+        -se \
+        -r "$gpg_name" \
+        --batch \
+        --yes \
+        "$passphrasefileflag""$gpg_pass" \
+        -o "$backup_destination"/"$output_name"
+else
+    cd "$backup_source" || exit 1
+    mkdir -p "$backup_destination"
+    tar \
+        zc "$backup_name" | \
+    gpg \
+        -se \
+        -r "$gpg_name" \
+        --batch \
+        --yes \
+        --pinentry-mode loopback \
+        "$gpg_pass" \
+        -o "$backup_destination"/"$output_name"
+fi
