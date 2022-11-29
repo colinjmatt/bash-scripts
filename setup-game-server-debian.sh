@@ -20,7 +20,7 @@ EOF
 			if [[ ! -d ~/steam ]]; then 
 				echo "Installing Steam..."
 				mkdir ~/steam
-				cd ~/steam
+				cd ~/steam || exit
 				wget http://media.steampowered.com/installer/steamcmd_linux.tar.gz
 				tar -xvzf steamcmd_linux.tar.gz
 				sudo apt-get -y -t stable install lib32gcc1
@@ -60,7 +60,7 @@ EOF
 				echo "Installing Minecraft $version..."
 				apt-get -t testing install openjdk-8-jdk-headless
 				mkdir -p ~/minecraft/"$version"
-				cd ~/minecraft/
+				cd ~/minecraft/ || exit
 				wget https://s3.amazonaws.com/Minecraft.Download/versions/"$version"/minecraft_server."$version".jar -P ~/minecraft/"$version"/
 				echo "#!/bin/bash" > ~/minecraft/minecraft_serverstart.sh
 				echo "java -Xmx1024M -Xms1024M -jar ~/minecraft/$version/minecraft_server.$version.jar nogui" >> ~/minecraft/minecraft_serverstart.sh
