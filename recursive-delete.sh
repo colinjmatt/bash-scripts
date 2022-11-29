@@ -8,7 +8,7 @@ for parentfolder in *; do
     for filename in *; do
       if [[ -f "$filename" ]]; then
         base=${filename%.*}
-        ext=${filename#$base.}
+        ext=${filename#"$base".}
         mkdir -p "${ext}"
         mv "$filename" "${ext}"
       fi
