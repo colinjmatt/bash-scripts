@@ -23,7 +23,7 @@ export JAVA_PARAMETERS="-XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:+CMSClass
 EOT
 
   echo eula=true > ./eula.txt
-  sed -i -e "s/\"ramM\"/\""$ram"M\"/g" ./settings-local.sh
+  sed -i -e "s/\"ramM\"/""$ram""/g" ./settings-local.sh
 
   )
 fi
