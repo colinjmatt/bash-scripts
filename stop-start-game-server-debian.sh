@@ -26,8 +26,8 @@ EOF
 					screen -X -S Starbound quit
 					~/steam/steamcmd.sh +login m1n1m3c0l1n +force_install_dir ~/starbound/server +app_update 211820 +exit
 					screen -d -m -S Starbound
-					screen -S Starbound -X stuff 'cd ~/starbound/server/linux'`echo -ne '\015'`
-					screen -S Starbound -X stuff './starbound_server'`echo -ne '\015'`
+					screen -S Starbound -X stuff 'cd ~/starbound/server/linux'"$(echo -ne '\015')"
+					screen -S Starbound -X stuff './starbound_server'"$(echo -ne '\015')"
 					clear ;;
 
 				"s")
@@ -51,8 +51,8 @@ EOF
 					screen -X -S Zomboid quit
 					~/steam/steamcmd.sh +login m1n1m3c0l1n +force_install_dir ~~/Zomboid/zomboid/server +app_update 211820 +exit
 					screen -d -m -S Zomboid
-					screen -S Zomboid -X stuff 'cd ~/Zomboid/zomboid/server'`echo -ne '\015'`
-					screen -S Zomboid -X stuff './start_server.sh'`echo -ne '\015'`
+					screen -S Zomboid -X stuff 'cd ~/Zomboid/zomboid/server'"$(echo -ne '\015')"
+					screen -S Zomboid -X stuff './start_server.sh'"$(echo -ne '\015')"
 					clear ;;
 
 				"s")
@@ -75,8 +75,8 @@ EOF
 					screen -S Minecraft -X stuff 'stop'
 					screen -X -S Minecraft quit
 					screen -d -m -S Minecraft
-					screen -S Minecraft -X stuff 'cd ~/minecraft/'`echo -ne '\015'`
-					screen -S Minecraft -X stuff './minecraft_serverstart.sh'`echo -ne '\015'`
+					screen -S Minecraft -X stuff 'cd ~/minecraft/'"$(echo -ne '\015')"
+					screen -S Minecraft -X stuff './minecraft_serverstart.sh'"$(echo -ne '\015')"
 					clear ;;
 
 				"s")
