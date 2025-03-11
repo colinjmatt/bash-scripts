@@ -23,7 +23,7 @@ print_usage() {
 }
 
 # Flags
-while getopts 'n:s:d:N:P:F:B:Dh' flag; do
+while getopts 'n:s:d:N:P:F:D:h' flag; do
     case "${flag}" in
         n) backup_name="${OPTARG}" ;;
         s) backup_source="${OPTARG}" ;;
